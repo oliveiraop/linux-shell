@@ -4,7 +4,7 @@ WARN=-Wall
 VERSION=-std=c99
 CCFLAGS= $(WARN) $(VERSION) $(PTHREAD)
 OBJS= main.o
-all: $(OBJS)
+all: clean $(OBJS)
 	$(CC) -o $(TARGET) $(OBJS)
  
 main.o:
