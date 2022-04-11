@@ -13,6 +13,7 @@ int run(char *command[]);
 int shell_kill(char *command[]);
 int shell_stop(char *command[]);
 int shell_continue(char *command[]);
+void shell_wait();
 
 int main()
 {
@@ -54,15 +55,7 @@ int main()
       }
       else if (strcmp(token[0], "wait") == 0)
       {
-        int wstatus;
-        pid_t wait_code = wait(&wstatus); // @todo Verificar como essa função se comporta, pois parece que ela não é bloqueante nesse nível aqui
-        if (wait_code == -1) {
-          printf("myshell: não há processos restantes\n");
-        } else if ( WIFEXITED(wstatus)) {
-          printf("myshell: processo %d terminou normalmente\n", wait_code);
-        } else if ( WIFSIGNALED(wstatus)) {
-          printf("myshell: processo %d terminou de forma anormal com sinal %d\n", wait_code, WTERMSIG(wstatus));
-        }
+        shell_wait();
         
       }
       else if (strcmp(token[0], "run") == 0)
@@ -101,6 +94,18 @@ int main()
   }
 }
 
+void shell_wait() {
+  int wstatus;
+  pid_t wait_code = wait(&wstatus); // @todo Verificar como essa função se comporta, pois parece que ela não é bloqueante nesse nível aqui
+  if (wait_code == -1) {
+    printf("myshell: não há processos restantes\n");
+  } else if ( WIFEXITED(wstatus)) {
+    printf("myshell: processo %d terminou normalmente com sinal %d\n", wait_code, WEXITSTATUS(wstatus));
+  } else if ( WIFSIGNALED(wstatus)) {
+    printf("myshell: processo %d terminou de forma anormal com sinal %d\n", wait_code, WTERMSIG(wstatus));
+  }
+}
+
 int start(char *command[]) {
   if (command[0] != NULL) {
     pid_t pid;
@@ -133,7 +138,7 @@ int run(char *command[]) {
     else
     {
       printf("myshell: processo %d iniciado\n", pid);
-      wait(NULL);
+      shell_wait();
       return 0;
     }
   }
